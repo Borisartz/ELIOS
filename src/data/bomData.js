@@ -1,0 +1,25 @@
+export const bomData = [
+  { id: 1, category: "Microcontroller", component: "Arduino Uno R3", quantity: 1, unitPrice: 250000 },
+  { id: 2, category: "Microcontroller", component: "ESP32-CAM Module", quantity: 1, unitPrice: 180000 },
+  { id: 3, category: "Motors", component: "Servo Motor SG90", quantity: 4, unitPrice: 45000 },
+  { id: 4, category: "Motors", component: "Stepper Motor NEMA 17", quantity: 2, unitPrice: 120000 },
+  { id: 5, category: "Sensors", component: "Ultrasonic Sensor HC-SR04", quantity: 3, unitPrice: 35000 },
+  { id: 6, category: "Sensors", component: "IR Obstacle Sensor", quantity: 4, unitPrice: 25000 },
+  { id: 7, category: "Power", component: "Li-ion Battery 18650 (3.7V)", quantity: 4, unitPrice: 55000 },
+  { id: 8, category: "Power", component: "Battery Holder 2x18650", quantity: 2, unitPrice: 30000 },
+  { id: 9, category: "Power", component: "Voltage Regulator LM2596", quantity: 2, unitPrice: 20000 },
+  { id: 10, category: "Chassis", component: "Acrylic Sheet 3mm", quantity: 2, unitPrice: 75000 },
+  { id: 11, category: "Chassis", component: "Aluminum Profile 20x20", quantity: 4, unitPrice: 40000 },
+  { id: 12, category: "Wheels", component: "Robot Wheel 65mm", quantity: 4, unitPrice: 35000 },
+  { id: 13, category: "Wheels", component: "Caster Wheel", quantity: 1, unitPrice: 25000 },
+  { id: 14, category: "Bins", component: "Plastic Container (Organic)", quantity: 1, unitPrice: 45000 },
+  { id: 15, category: "Bins", component: "Plastic Container (Inorganic)", quantity: 1, unitPrice: 45000 },
+  { id: 16, category: "Bins", component: "Plastic Container (Hazardous)", quantity: 1, unitPrice: 45000 },
+  { id: 17, category: "Electronics", component: "Motor Driver L298N", quantity: 1, unitPrice: 65000 },
+  { id: 18, category: "Electronics", component: "Jumper Wires Set", quantity: 3, unitPrice: 15000 },
+  { id: 19, category: "Electronics", component: "Breadboard", quantity: 2, unitPrice: 25000 },
+  { id: 20, category: "Miscellaneous", component: "Screws & Nuts Set", quantity: 1, unitPrice: 50000 },
+  { id: 21, category: "Miscellaneous", component: "3D Printed Parts", quantity: 1, unitPrice: 150000 },
+];
+
+export const categories = [...new Set(bomData.map(item => item.category))];
