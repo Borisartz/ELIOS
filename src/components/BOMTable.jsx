@@ -11,8 +11,10 @@ const PDF_MAP = {
   "Servo MG996R": "/datasheets/servo-mg996r.pdf",
   "Servo MG90S": "/datasheets/servo-mg90s.pdf",
   "Servo SG90": "/datasheets/servo-sg90.pdf",
-  "Mur Nylon (Anti-loosening Nut)": "/datasheets/m8-lock-nut.pdf",
-  "Baut M3": "/datasheets/m3.pdf",
+  "M8 Lock Nut (Anti-loosening Nut)": "/datasheets/m8-lock-nut.pdf",
+  "M3 Bolt (6 mm)": "/datasheets/m3.pdf",
+  "M3 Bolt (10 mm)": "/datasheets/m3.pdf",
+  "M3 Bolt (14 mm)": "/datasheets/m3.pdf",
 };
 
 const BOMTable = () => {
