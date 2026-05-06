@@ -1,8 +1,19 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { bomDataFallback } from '../data/bomData';
 
 const CACHE_KEY = 'bom_cache';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+const PDF_MAP = {
+  "Gear Motor TT": "/datasheets/gear-motor-tt.pdf",
+  "Roda Kuning": "/datasheets/roda-kuning.pdf",
+  "Bearing 608": "/datasheets/608-ball-bearing.pdf",
+  "Servo MG996R": "/datasheets/servo-mg996r.pdf",
+  "Servo MG90S": "/datasheets/servo-mg90s.pdf",
+  "Servo SG90": "/datasheets/servo-sg90.pdf",
+  "Mur Nylon (Anti-loosening Nut)": "/datasheets/m8-lock-nut.pdf",
+  "Baut M3": "/datasheets/m3.pdf",
+};
 
 const BOMTable = () => {
   const [rawData, setRawData] = useState([]);
@@ -13,6 +24,11 @@ const BOMTable = () => {
   const [sortColumn, setSortColumn] = useState('id');
   const [sortDirection, setSortDirection] = useState('asc');
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const [activePdf, setActivePdf] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
+  const pdfViewerRef = useRef(null);
 
   const fetchData = useCallback(async (bypassCache = false) => {
     if (bypassCache) {
@@ -77,6 +93,32 @@ const BOMTable = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const getPdfUrl = (componentName) => {
+    return PDF_MAP[componentName] || null;
+  };
+
+  const openPdf = (componentName) => {
+    const url = getPdfUrl(componentName);
+    if (!url) return;
+    setActivePdf({ name: componentName, url });
+    setPdfLoading(true);
+    setPdfError(false);
+  };
+
+  const closePdf = () => {
+    setActivePdf(null);
+    setPdfLoading(false);
+    setPdfError(false);
+  };
+
+  useEffect(() => {
+    if (activePdf) {
+      setTimeout(() => {
+        pdfViewerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  }, [activePdf]);
 
   const categories = useMemo(() => {
     return [...new Set(rawData.map(item => item.category))];
@@ -215,6 +257,71 @@ const BOMTable = () => {
           </div>
         </div>
 
+        {/* PDF Viewer Panel */}
+        {activePdf && (
+          <div
+            ref={pdfViewerRef}
+            className="mb-6 rounded-xl overflow-hidden shadow-lg border border-gray-200"
+          >
+            {/* Toolbar */}
+            <div className="bg-gray-800 px-4 h-11 flex items-center justify-between">
+              <span className="text-white text-xs font-mono truncate">
+                {activePdf.name}.pdf
+              </span>
+              <button
+                onClick={closePdf}
+                className="text-gray-400 hover:text-white transition-colors"
+                title="Close"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* PDF area */}
+            <div className="relative bg-gray-100">
+              {pdfLoading && !pdfError && (
+                <div className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center z-10">
+                  <div className="w-8 h-8 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin" />
+                  <p className="text-sm text-gray-500 mt-3">Loading datasheet...</p>
+                </div>
+              )}
+
+              {pdfError ? (
+                <div className="bg-gray-50 p-8 text-center">
+                  <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 10l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                  <p className="text-gray-500 text-sm mb-4">PDF preview is not supported on this browser</p>
+                  <a
+                    href={activePdf.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open PDF in new tab
+                  </a>
+                </div>
+              ) : (
+                <iframe
+                  src={activePdf.url}
+                  width="100%"
+                  height={typeof window !== 'undefined' && window.innerWidth < 640 ? "400px" : "600px"}
+                  style={{ border: 'none', display: 'block' }}
+                  onLoad={() => setPdfLoading(false)}
+                  onError={() => setPdfError(true)}
+                  title={`${activePdf.name} datasheet`}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div className="overflow-x-auto rounded-xl shadow-md border border-gray-200 slide-up">
           <table className="w-full">
@@ -291,6 +398,17 @@ const BOMTable = () => {
                     <td className="px-6 py-4 text-sm text-gray-700">
                       <div className="font-medium text-gray-900">
                         {item.component}
+                        {getPdfUrl(item.component) && (
+                          <button
+                            onClick={() => openPdf(item.component)}
+                            className="inline-flex items-center justify-center ml-1 text-red-500 hover:text-red-700 transition-colors"
+                            title={`View ${item.component} datasheet`}
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM6 20V4h7v5h5v11H6zm2-6h8v2H8v-2zm0 4h5v2H8v-2z"/>
+                            </svg>
+                          </button>
+                        )}
                         {item.link && (
                           <a href={item.link} target="_blank" rel="noopener noreferrer" title="External link">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block ml-1 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
